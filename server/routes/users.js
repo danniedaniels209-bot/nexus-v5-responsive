@@ -2,7 +2,56 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Post = require('../models/Post');
+const Message = require('../models/Message');
 const { protect } = require('../middleware/auth');
+
+// @route GET /api/users/conversations
+// Returns a list of users the current user has chatted with, along with the last message.
+router.get('/conversations', protect, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Find all unique rooms/users the user has exchanged messages with
+    const messages = await Message.find({
+      $or: [{ sender: userId }, { receiver: userId }],
+    })
+      .sort({ createdAt: -1 })
+      .populate('sender', 'username avatar')
+      .populate('receiver', 'username avatar');
+
+    const conversationsMap = new Map();
+
+    messages.forEach((msg) => {
+      const otherUser = msg.sender._id.toString() === userId.toString() ? msg.receiver : msg.sender;
+      if (!otherUser) return; // Skip global messages without receiver
+
+      const otherId = otherUser._id.toString();
+      if (!conversationsMap.has(otherId)) {
+        conversationsMap.set(otherId, {
+          user: otherUser,
+          room: `dm_${[userId.toString(), otherId].sort().join('_')}`,
+          lastMsg: msg,
+          unread: !msg.read && msg.receiver?._id.toString() === userId.toString(),
+        });
+      }
+    });
+
+    res.json({ success: true, conversations: Array.from(conversationsMap.values()) });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// @route GET /api/users/id/:id
+router.get('/id/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('username avatar bio');
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 // @route GET /api/users/search?q=query
 router.get('/search', async (req, res) => {

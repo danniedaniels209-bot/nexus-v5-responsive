@@ -65,11 +65,15 @@ const initSocket = (io) => {
         });
         await msg.populate('sender', 'username avatar');
 
+        const room = msg.room;
+        // Emit to the room (both sender and receiver if they are joined)
+        io.to(room).emit('new_private_message', msg);
+
+        // Also emit to receiver directly in case they aren't in the room yet
         const receiverSocketId = onlineUsers.get(data.receiverId);
         if (receiverSocketId) {
           io.to(receiverSocketId).emit('new_private_message', msg);
         }
-        socket.emit('new_private_message', msg);
       } catch (err) {
         socket.emit('error', err.message);
       }
@@ -80,16 +84,39 @@ const initSocket = (io) => {
       socket.join(room);
     });
 
+    // Get DM history
+    socket.on('get_dm_history', async (data) => {
+      try {
+        const messages = await Message.find({ room: data.room })
+          .populate('sender', 'username avatar')
+          .sort({ createdAt: 1 });
+
+        socket.emit('dm_history', { room: data.room, messages });
+
+        // Mark messages as read
+        await Message.updateMany(
+          { room: data.room, receiver: userId, read: false },
+          { $set: { read: true } }
+        );
+      } catch (err) {
+        socket.emit('error', err.message);
+      }
+    });
+
     // Typing indicator
     socket.on('typing', (data) => {
       socket.to(data.room || 'global').emit('user_typing', {
         userId,
         username: data.username,
+        room: data.room || 'global'
       });
     });
 
     socket.on('stop_typing', (data) => {
-      socket.to(data.room || 'global').emit('user_stop_typing', { userId });
+      socket.to(data.room || 'global').emit('user_stop_typing', {
+        userId,
+        room: data.room || 'global'
+      });
     });
 
     // Disconnect
