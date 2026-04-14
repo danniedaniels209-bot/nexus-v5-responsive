@@ -24,6 +24,27 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({ storage, fileFilter, limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB
+const sharp = require('sharp');
+
+// Helper: optimize image in place (rotate by EXIF, resize to max width, compress)
+async function optimizeImage(filePath) {
+  try {
+    const ext = path.extname(filePath).toLowerCase();
+    let transformer = sharp(filePath).rotate().resize({ width: 1920, withoutEnlargement: true });
+
+    if (ext === '.jpg' || ext === '.jpeg') transformer = transformer.jpeg({ quality: 85 });
+    else if (ext === '.png') transformer = transformer.png({ compressionLevel: 9 });
+    else if (ext === '.webp') transformer = transformer.webp({ quality: 85 });
+    else transformer = transformer.jpeg({ quality: 85 });
+
+    const outBuffer = await transformer.toBuffer();
+    fs.writeFileSync(filePath, outBuffer);
+    return true;
+  } catch (err) {
+    console.error('optimizeImage error:', err.message || err);
+    return false;
+  }
+}
 
 // @route GET /api/posts?page=1&limit=10&search=term&tag=tag
 router.get('/', async (req, res) => {
@@ -92,6 +113,11 @@ router.post('/', protect, upload.single('media'), async (req, res) => {
       // Construct absolute URL for uploaded file
       mediaUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
       mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+      // If image, run optimization (rotate, resize, compress)
+      if (req.file.mimetype.startsWith('image/')) {
+        const uploadedPath = path.join(uploadsDir, req.file.filename);
+        try { await optimizeImage(uploadedPath); } catch (e) { console.error('Image optimize failed', e); }
+      }
     }
 
     const post = await Post.create({
@@ -129,6 +155,11 @@ router.put('/:id', protect, upload.single('media'), async (req, res) => {
     if (req.file) {
       mediaUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
       mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+      // Optimize images after upload
+      if (req.file.mimetype.startsWith('image/')) {
+        const uploadedPath = path.join(uploadsDir, req.file.filename);
+        try { await optimizeImage(uploadedPath); } catch (e) { console.error('Image optimize failed', e); }
+      }
     }
 
     post = await Post.findByIdAndUpdate(
