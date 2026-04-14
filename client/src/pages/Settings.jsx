@@ -16,7 +16,6 @@ export default function Settings() {
   const [profile, setProfile]   = useState({ bio: user?.bio || '', avatar: user?.avatar || '' });
   const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' });
   const [saving, setSaving]     = useState(false);
-  const [resetting, setResetting] = useState(false);
 
   const saveProfile = async e => {
     e.preventDefault(); setSaving(true);
@@ -41,27 +40,6 @@ export default function Settings() {
     catch { toast.error('Failed to delete account'); }
   };
 
-  const handleFullReset = async () => {
-    const confirm1 = confirm("⚠️ DANGER: This will delete ALL users, ALL posts, and ALL messages from the entire platform. Are you absolutely sure?");
-    if (!confirm1) return;
-
-    const confirm2 = confirm("LAST WARNING: This cannot be undone. Every piece of data on the website will be erased. Proceed?");
-    if (!confirm2) return;
-
-    setResetting(true);
-    try {
-      await api.delete('/auth/danger/reset', {
-        headers: { 'x-reset-key': 'nexus-reset-v5' }
-      });
-      toast.success('Platform reset successfully');
-      logout();
-      window.location.href = '/register';
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Reset failed. Make sure the backend is updated.');
-    }
-    setResetting(false);
-  };
-
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', color: '#E5E7EB', fontFamily: '"DM Sans", sans-serif' }}>
       <div className="page-bg"/>
@@ -77,7 +55,7 @@ export default function Settings() {
                 style={{
                   padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 500,
                   cursor: 'pointer', border: 'none', transition: 'all 0.2s',
-                  background: tab === t ? (t === 'Danger' ? 'rgba(217,92,92,0.12)' : 'rgba(139,92,246,0.12)') : 'transparent',
+                  background: tab === t ? (t === 'Danger' ? 'rgba(217,92,92,0.12)' : 'rgba(139, 92, 246, 0.12)') : 'transparent',
                   color: tab === t ? (t === 'Danger' ? 'var(--red)' : 'var(--purple)') : 'var(--text-3)',
                   boxShadow: tab === t ? `0 0 0 1px ${t === 'Danger' ? 'rgba(217,92,92,0.25)' : 'rgba(139,92,246,0.35)'}` : 'none',
                 }}>
@@ -148,29 +126,15 @@ export default function Settings() {
             )}
 
             {tab === 'Danger' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <div>
                   <h2 style={{ fontFamily: '"Instrument Serif", serif', fontSize: 22, fontWeight: 400, color: '#E5E7EB', marginBottom: 6 }}>Danger Zone</h2>
                   <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.6 }}>These actions are permanent and cannot be reversed.</p>
                 </div>
-
-                <div style={{ border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 20, background: 'rgba(255,255,255,0.02)' }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 600, color: '#EF4444', marginBottom: 8 }}>Reset Entire Platform</h3>
-                  <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.6, marginBottom: 16 }}>
-                    This will delete <strong>ALL</strong> users, posts, and messages from the entire database. Use with extreme caution.
-                  </p>
-                  <button onClick={handleFullReset} disabled={resetting}
-                    style={{ padding: '9px 20px', fontSize: 13, fontWeight: 700, color: '#fff', background: '#EF4444', border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: '"DM Sans", sans-serif', transition: 'all 0.2s', opacity: resetting ? 0.5 : 1 }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#DC2626'}
-                    onMouseLeave={e => e.currentTarget.style.background = '#EF4444'}>
-                    {resetting ? 'Resetting...' : 'Reset Website (DELETE EVERYTHING)'}
-                  </button>
-                </div>
-
                 <div style={{ border: '1px solid rgba(217,92,92,0.25)', borderRadius: 12, padding: 20, background: 'rgba(217,92,92,0.04)' }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 600, color: '#EF4444', marginBottom: 8 }}>Delete My Account</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 600, color: '#EF4444', marginBottom: 8 }}>Delete Account</h3>
                   <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.6, marginBottom: 16 }}>
-                    Permanently deletes your account and your posts only.
+                    Permanently deletes your account, all posts, and data. This cannot be undone.
                   </p>
                   <button onClick={deleteAccount}
                     style={{ padding: '9px 20px', fontSize: 13, fontWeight: 600, color: '#EF4444', background: 'transparent', border: '1px solid rgba(217,92,92,0.35)', borderRadius: 8, cursor: 'pointer', fontFamily: '"DM Sans", sans-serif', transition: 'all 0.2s' }}

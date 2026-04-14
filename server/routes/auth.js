@@ -2,11 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-const fs = require('fs');
-const path = require('path');
 const User = require('../models/User');
-const Post = require('../models/Post');
-const Message = require('../models/Message');
 const { protect } = require('../middleware/auth');
 
 // Generate Access Token (Short lived)
@@ -164,34 +160,6 @@ router.put('/change-password', protect, async (req, res) => {
     await user.save();
     res.json({ success: true, message: 'Password changed' });
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
-});
-
-// @route   DELETE /api/auth/danger/reset
-// DANGER: Deletes ALL users, posts, and messages.
-router.delete('/danger/reset', async (req, res) => {
-  if (req.headers['x-reset-key'] !== 'nexus-reset-v5') {
-    return res.status(403).json({ success: false, message: 'Invalid Reset Key' });
-  }
-
-  try {
-    await Post.deleteMany({});
-    await Message.deleteMany({});
-    await User.deleteMany({});
-
-    const uploadsPath = path.join(__dirname, '..', 'uploads');
-    if (fs.existsSync(uploadsPath)) {
-      const files = fs.readdirSync(uploadsPath);
-      for (const file of files) {
-        if (file !== '.gitkeep') {
-          fs.unlinkSync(path.join(uploadsPath, file));
-        }
-      }
-    }
-
-    res.json({ success: true, message: 'All content cleared successfully' });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
 });
 
 module.exports = router;
