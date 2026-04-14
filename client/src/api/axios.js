@@ -1,14 +1,14 @@
 import axios from 'axios';
 
-// Use build-time Vite variable if provided, otherwise fallback to relative `/api`.
-const base = import.meta.env.VITE_API_URL || '/api';
+// Use build-time Vite variable, fallback to your specific Render backend, or local /api.
+const base = import.meta.env.VITE_API_URL || 'https://nexus-v5-responsiv.onrender.com/api';
+
 const api = axios.create({
   baseURL: base,
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,   // send HTTP-only refresh-token cookie automatically
+  withCredentials: true,
 });
 
-// ── Track in-flight refresh to prevent duplicate calls ──────────────────────
 let _refreshing = false;
 let _refreshQueue = [];
 
@@ -19,20 +19,17 @@ function flushQueue(token, error) {
   _refreshQueue = [];
 }
 
-// ── REQUEST: attach access token ─────────────────────────────────────────────
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('nexus_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// ── RESPONSE: handle 401 → silent token refresh ──────────────────────────────
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config;
 
-    // Only attempt refresh on 401, not already retried, not on auth endpoints
     if (
       err.response?.status === 401 &&
       !original._retry &&
@@ -43,7 +40,6 @@ api.interceptors.response.use(
       original._retry = true;
 
       if (_refreshing) {
-        // Queue the request and wait for ongoing refresh
         return new Promise((resolve, reject) => {
           _refreshQueue.push({ resolve, reject });
         }).then((token) => {
@@ -54,29 +50,22 @@ api.interceptors.response.use(
 
       _refreshing = true;
       try {
-        // Refresh token lives in HTTP-only cookie — no body needed
         const { data } = await api.post('/auth/refresh');
         const newToken = data.token;
         localStorage.setItem('nexus_token', newToken);
-
-        // Update store token without importing the store (avoids circular dep)
         api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
-
         flushQueue(newToken, null);
         _refreshing = false;
-
         original.headers.Authorization = `Bearer ${newToken}`;
         return api(original);
       } catch (refreshErr) {
         flushQueue(null, refreshErr);
         _refreshing = false;
         localStorage.removeItem('nexus_token');
-        // Dispatch a custom event so the auth store can react
         window.dispatchEvent(new Event('nexus:logout'));
         return Promise.reject(refreshErr);
       }
     }
-
     return Promise.reject(err);
   }
 );

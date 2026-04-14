@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import useAuthStore from '../context/authStore';
 
 export default function Login() {
   const { login }  = useAuthStore();
+  const navigate = useNavigate();
   const [form, setForm]       = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
 
@@ -15,7 +16,7 @@ export default function Login() {
     try {
       await login(form.email, form.password);
       toast.success('Welcome back 👋');
-      window.location.href = '/feed';
+      navigate('/feed');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Invalid credentials');
     }
