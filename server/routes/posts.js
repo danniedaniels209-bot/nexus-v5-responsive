@@ -2,6 +2,28 @@ const express = require('express');
 const router = express.Router();
 const Post = require('../models/Post');
 const { protect } = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Multer storage (local disk). For production, consider S3/Cloudinary and set via env.
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadsDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) cb(null, true);
+  else cb(new Error('Only image and video uploads are allowed'), false);
+};
+
+const upload = multer({ storage, fileFilter, limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB
 
 // @route GET /api/posts?page=1&limit=10&search=term&tag=tag
 router.get('/', async (req, res) => {
@@ -24,9 +46,16 @@ router.get('/', async (req, res) => {
 
     const total = await Post.countDocuments(query);
 
+    // Map mediaUrl -> image for legacy client code that expects `image`
+    const postsOut = posts.map((p) => {
+      const obj = p.toObject();
+      if (obj.mediaType === 'image' && obj.mediaUrl) obj.image = obj.mediaUrl;
+      return obj;
+    });
+
     res.json({
       success: true,
-      posts,
+      posts: postsOut,
       pagination: { total, page: Number(page), pages: Math.ceil(total / limit) },
     });
   } catch (err) {
@@ -51,9 +80,20 @@ router.get('/:id', async (req, res) => {
 });
 
 // @route POST /api/posts
-router.post('/', protect, async (req, res) => {
+// Accepts either JSON body (mediaUrl) OR multipart/form-data with file field `media`.
+router.post('/', protect, upload.single('media'), async (req, res) => {
   try {
-    const { title, content, mediaUrl, mediaType, tags } = req.body;
+    const { title, content, mediaUrl: bodyMediaUrl, mediaType: bodyMediaType, tags } = req.body;
+
+    let mediaUrl = bodyMediaUrl || '';
+    let mediaType = bodyMediaType || 'none';
+
+    if (req.file) {
+      // Construct absolute URL for uploaded file
+      mediaUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+    }
+
     const post = await Post.create({
       author: req.user._id,
       title,
@@ -63,28 +103,44 @@ router.post('/', protect, async (req, res) => {
       tags: tags ? tags.split(',').map((t) => t.trim()) : [],
     });
     await post.populate('author', 'username avatar');
-    res.status(201).json({ success: true, post });
+
+    const out = post.toObject();
+    if (out.mediaType === 'image' && out.mediaUrl) out.image = out.mediaUrl;
+
+    res.status(201).json({ success: true, post: out });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
 // @route PUT /api/posts/:id
-router.put('/:id', protect, async (req, res) => {
+router.put('/:id', protect, upload.single('media'), async (req, res) => {
   try {
     let post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
     if (post.author.toString() !== req.user._id.toString())
       return res.status(403).json({ success: false, message: 'Not authorized' });
 
-    const { title, content, mediaUrl, mediaType, tags } = req.body;
+    const { title, content, mediaUrl: bodyMediaUrl, mediaType: bodyMediaType, tags } = req.body;
+
+    let mediaUrl = bodyMediaUrl || post.mediaUrl;
+    let mediaType = bodyMediaType || post.mediaType;
+
+    if (req.file) {
+      mediaUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+      mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+    }
+
     post = await Post.findByIdAndUpdate(
       req.params.id,
       { title, content, mediaUrl, mediaType, tags: tags ? tags.split(',').map((t) => t.trim()) : post.tags },
       { new: true, runValidators: true }
     ).populate('author', 'username avatar');
 
-    res.json({ success: true, post });
+    const out = post.toObject();
+    if (out.mediaType === 'image' && out.mediaUrl) out.image = out.mediaUrl;
+
+    res.json({ success: true, post: out });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

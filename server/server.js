@@ -4,6 +4,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require('path');
+const fs = require('fs');
 const connectDB = require('./config/db');
 const initSocket = require('./socket/chat');
 
@@ -22,6 +24,12 @@ if (!process.env.MONGO_URI) {
 connectDB();
 
 const app = express();
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+// Serve uploaded files
+app.use('/uploads', express.static(uploadsDir));
 const server = http.createServer(app);
 
 // Socket.io

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -15,18 +15,51 @@ export default function CreatePost() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ title: "", content: "", mediaUrl: "", mediaType: "none", tags: "" });
   const [loading, setLoading] = useState(false);
+  const [mediaFile, setMediaFile] = useState(null);
+  const [mediaPreview, setMediaPreview] = useState(null);
 
   const handleSubmit = async e => {
     e.preventDefault();
     if (!form.content.trim()) { toast.error("Content is required"); return; }
     setLoading(true);
     try {
-      const { data } = await api.post("/posts", form);
+      let res;
+      if (mediaFile) {
+        const fd = new FormData();
+        fd.append('title', form.title);
+        fd.append('content', form.content);
+        fd.append('tags', form.tags);
+        fd.append('mediaType', form.mediaType);
+        fd.append('media', mediaFile);
+        res = await api.post('/posts', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      } else {
+        const { data } = await api.post("/posts", form);
+        res = { data };
+      }
       toast.success("Published!");
-      navigate(`/posts/${data.post._id}`);
+      navigate(`/posts/${res.data.post._id}`);
     } catch(err) { toast.error(err.response?.data?.message || "Failed to publish"); }
     setLoading(false);
   };
+
+  const handleFileChange = (e) => {
+    const f = e.target.files?.[0];
+    if (!f) {
+      setMediaFile(null);
+      setMediaPreview(null);
+      return;
+    }
+    setMediaFile(f);
+    setMediaPreview(URL.createObjectURL(f));
+    if (f.type.startsWith('image/')) setForm(prev => ({ ...prev, mediaType: 'image' }));
+    else if (f.type.startsWith('video/')) setForm(prev => ({ ...prev, mediaType: 'video' }));
+  };
+
+  useEffect(() => {
+    return () => {
+      if (mediaPreview) URL.revokeObjectURL(mediaPreview);
+    };
+  }, [mediaPreview]);
 
   const wordCount = form.content.trim().split(/\s+/).filter(Boolean).length;
 
@@ -114,9 +147,32 @@ export default function CreatePost() {
 
             {form.mediaType !== "none" && (
               <div>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6B7280", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.04em" }}>URL</label>
-                <input value={form.mediaUrl} onChange={e => setForm({ ...form, mediaUrl: e.target.value })}
-                  placeholder={`Paste ${form.mediaType} URL…`} className="input-nexus" style={{ fontSize: 13 }}/>
+                {form.mediaType === 'link' ? (
+                  <>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6B7280", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.04em" }}>URL</label>
+                    <input value={form.mediaUrl} onChange={e => setForm({ ...form, mediaUrl: e.target.value })}
+                      placeholder={`Paste ${form.mediaType} URL…`} className="input-nexus" style={{ fontSize: 13 }}/>
+                  </>
+                ) : (
+                  <>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6B7280", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.04em" }}>Upload from device</label>
+                    <input type="file" accept={form.mediaType === 'image' ? 'image/*' : 'video/*'} onChange={handleFileChange} />
+                    {mediaPreview && (
+                      <div style={{ marginTop: 10 }}>
+                        {form.mediaType === 'image' ? (
+                          <img src={mediaPreview} alt="preview" style={{ width: '100%', borderRadius: 8, maxHeight: 220, objectFit: 'cover' }} />
+                        ) : (
+                          <video src={mediaPreview} controls style={{ width: '100%', borderRadius: 8 }} />
+                        )}
+                      </div>
+                    )}
+                    <div style={{ marginTop: 8 }}>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6B7280", marginBottom: 6 }}>Or paste a URL</label>
+                      <input value={form.mediaUrl} onChange={e => setForm({ ...form, mediaUrl: e.target.value })}
+                        placeholder={`Paste ${form.mediaType} URL…`} className="input-nexus" style={{ fontSize: 13 }}/>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </motion.div>
