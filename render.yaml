@@ -17,14 +17,13 @@ services:
       - key: CLIENT_URL
         sync: false   # e.g. https://nexus.vercel.app
 
-  - type: static
+  - type: static_site
     name: nexus-client
-    env: static
     region: oregon
     buildCommand: cd client && npm install && npm run build
-    staticPublishPath: client/dist
+    publishPath: client/dist
     envVars:
       - key: NODE_ENV
         value: production
-      - key: API_URL
-        sync: false   # Set in Render dashboard to the API URL (e.g. https://nexus-api.onrender.com)
+      - key: VITE_API_URL
+        sync: false   # Set in Render dashboard to the API URL (e.g. https://nexus-api.onrender.com/api)
