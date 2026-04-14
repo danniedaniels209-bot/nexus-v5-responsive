@@ -3,6 +3,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
@@ -43,12 +44,14 @@ const io = new Server(server, {
 initSocket(io);
 
 // Middleware
+app.use(cookieParser());
 // Use restrictive CORS in production when CLIENT_URL is provided; otherwise allow all origins for local/dev.
 if (process.env.NODE_ENV === 'production' && process.env.CLIENT_URL) {
   app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 } else {
-  app.use(cors());
+  app.use(cors({ origin: true, credentials: true }));
 }
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
