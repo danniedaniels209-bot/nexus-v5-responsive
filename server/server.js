@@ -43,8 +43,12 @@ const io = new Server(server, {
 initSocket(io);
 
 // Middleware
-// Temporarily allow all origins for deployment/testing. Restrict to `CLIENT_URL` later.
-app.use(cors());
+// Use restrictive CORS in production when CLIENT_URL is provided; otherwise allow all origins for local/dev.
+if (process.env.NODE_ENV === 'production' && process.env.CLIENT_URL) {
+  app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+} else {
+  app.use(cors());
+}
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));

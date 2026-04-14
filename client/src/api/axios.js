@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+// Use build-time Vite variable if provided, otherwise fallback to relative `/api`.
+const base = import.meta.env.VITE_API_URL || '/api';
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: base,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,   // send HTTP-only refresh-token cookie automatically
 });
