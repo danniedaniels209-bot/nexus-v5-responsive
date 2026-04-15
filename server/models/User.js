@@ -33,8 +33,13 @@ const UserSchema = new mongoose.Schema(
       maxlength: 200,
       default: '',
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
     isOnline: { type: Boolean, default: false },
     lastSeen: { type: Date, default: Date.now },
   },

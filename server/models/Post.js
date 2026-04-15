@@ -27,6 +27,12 @@ const PostSchema = new mongoose.Schema(
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     comments: [CommentSchema],
     views: { type: Number, default: 0 },
+
+    // Competitive Social Features
+    isRepost: { type: Boolean, default: false },
+    originalPost: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
+    repostQuote: { type: String, maxlength: 500 },
+    repostsCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

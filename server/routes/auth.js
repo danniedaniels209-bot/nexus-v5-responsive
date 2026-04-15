@@ -37,6 +37,7 @@ const sendTokenResponse = (user, statusCode, res) => {
         email: user.email,
         avatar: user.avatar,
         bio: user.bio,
+        isVerified: user.isVerified,
       },
     });
 };
@@ -119,7 +120,13 @@ router.post('/refresh', async (req, res) => {
     }
 
     const token = signToken(user._id);
-    res.json({ success: true, token });
+    res.json({ success: true, token, user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      isVerified: user.isVerified
+    }});
   } catch (err) {
     return res.status(401).json({ success: false, message: 'Invalid refresh token' });
   }
