@@ -25,22 +25,25 @@ const sendTokenResponse = (user, statusCode, res) => {
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   };
 
+  const userObj = {
+    id: user._id,
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+    avatar: user.avatar,
+    bio: user.bio,
+    isVerified: user.isVerified,
+    dateOfBirth: user.dateOfBirth,
+    location: user.location,
+  };
+
   res
     .status(statusCode)
     .cookie('refreshToken', refreshToken, cookieOptions)
     .json({
       success: true,
       token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        avatar: user.avatar,
-        bio: user.bio,
-        isVerified: user.isVerified,
-        dateOfBirth: user.dateOfBirth,
-        location: user.location,
-      },
+      user: userObj,
     });
 };
 
@@ -130,13 +133,18 @@ router.post('/refresh', async (req, res) => {
     }
 
     const token = signToken(user._id);
-    res.json({ success: true, token, user: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      avatar: user.avatar,
-      isVerified: user.isVerified
-    }});
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar,
+        isVerified: user.isVerified
+      }
+    });
   } catch (err) {
     return res.status(401).json({ success: false, message: 'Invalid refresh token' });
   }
@@ -144,7 +152,9 @@ router.post('/refresh', async (req, res) => {
 
 // @route   GET /api/auth/me
 router.get('/me', protect, async (req, res) => {
-  res.json({ success: true, user: req.user });
+  const user = req.user.toObject();
+  user.id = user._id; // Ensure id is present
+  res.json({ success: true, user });
 });
 
 // @route   POST /api/auth/logout

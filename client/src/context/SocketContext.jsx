@@ -23,13 +23,19 @@ export function SocketProvider({ children }) {
       ? import.meta.env.VITE_API_URL.replace('/api', '')
       : 'https://nexus-v5-responsiv.onrender.com';
 
+    // Use both polling and websocket for maximum compatibility on Render
     socketRef.current = io(socketUrl, {
       auth: { token },
-      transports: ['websocket'],
-      withCredentials: true
+      transports: ['polling', 'websocket'],
+      withCredentials: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     const s = socketRef.current;
+
+    s.on('connect', () => console.log('✅ Connected to chat server'));
+    s.on('connect_error', (err) => console.error('❌ Connection error:', err.message));
 
     s.on('online_users', setOnlineUsers);
 
@@ -52,7 +58,7 @@ export function SocketProvider({ children }) {
         }
       });
 
-      if (msg.sender._id !== user?.id) {
+      if (msg.sender?._id !== user?.id) {
         setUnreadCount(n => n + 1);
       }
     });
@@ -89,7 +95,7 @@ export function SocketProvider({ children }) {
   }, [refreshConversations]);
 
   const openDM = useCallback((otherUserId) => {
-    const myId = user?.id;
+    const myId = user?.id || user?._id;
     const room = `dm_${[myId, otherUserId].sort().join('_')}`;
     socketRef.current?.emit('join_room', room);
     socketRef.current?.emit('get_dm_history', { room });
