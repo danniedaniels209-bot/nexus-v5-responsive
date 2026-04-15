@@ -12,65 +12,58 @@ const TAGS = ['technology','design','ai','javascript','startup','ux','webdev','o
 function Sidebar() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      {/* Quick-post prompt */}
       <div style={{
-        padding: 20, borderRadius: 16,
-        background: 'rgba(139,92,246,0.06)', backdropFilter: 'blur(16px)',
-        border: '1px solid rgba(139,92,246,0.15)',
+        padding: 24, borderRadius: 20,
+        background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
           <span style={{ fontSize: 18 }}>✍️</span>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#E5E7EB' }}>Share something</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#E5E7EB' }}>Share something</span>
         </div>
-        <p style={{ fontSize: 12.5, color: '#6B7280', marginBottom: 14, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 16, lineHeight: 1.6 }}>
           Share what's on your mind with your network.
         </p>
-        <Link to="/create" className="btn btn-primary" style={{ display: 'block', textAlign: 'center', padding: '9px 16px', fontSize: 13 }}>
+        <Link to="/create" className="btn btn-primary" style={{ width: '100%', padding: '10px' }}>
           Write a post
         </Link>
       </div>
 
-      {/* Tags */}
       <div style={{
-        padding: 20, borderRadius: 16,
-        background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(16px)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        padding: 24, borderRadius: 20,
+        background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)',
       }}>
-        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: '#6B7280', marginBottom: 14 }}>Explore tags</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 16 }}>Explore tags</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {TAGS.map(tag => (
             <Link key={tag} to={`/explore?tag=${tag}`} style={{
-              padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-              color: '#9CA3AF', textDecoration: 'none', transition: 'all 0.2s',
+              padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 500,
+              background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)',
+              color: 'var(--text-2)', textDecoration: 'none', transition: '0.2s',
             }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(139,92,246,0.3)'; e.currentTarget.style.color = '#A78BFA'; e.currentTarget.style.background = 'rgba(139,92,246,0.08)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#9CA3AF'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}>
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--purple)'; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-2)'; }}>
               #{tag}
             </Link>
           ))}
         </div>
       </div>
 
-      {/* Community card */}
       <div style={{
-        padding: 20, borderRadius: 16,
-        background: 'rgba(34,211,238,0.04)', backdropFilter: 'blur(16px)',
-        border: '1px solid rgba(34,211,238,0.12)',
+        padding: 24, borderRadius: 20,
+        background: 'rgba(139,92,246,0.03)', border: '1px solid var(--purple-ring)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', boxShadow: '0 0 8px rgba(16,185,129,0.8)', display: 'inline-block' }} />
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#67E8F9' }}>Community live</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', boxShadow: '0 0 10px #10B981' }} />
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#A78BFA' }}>Global Chat</span>
         </div>
-        <p style={{ fontSize: 12.5, color: '#6B7280', lineHeight: 1.6 }}>
-          Join the global chat to connect with others in real time.
+        <p style={{ fontSize: 13, color: 'var(--text-3)', lineHeight: 1.6 }}>
+          Join the community to connect in real time.
         </p>
         <Link to="/chat" style={{
-          display: 'block', marginTop: 12, padding: '8px 14px', borderRadius: 8,
-          background: 'rgba(34,211,238,0.1)', border: '1px solid rgba(34,211,238,0.2)',
-          color: '#67E8F9', textDecoration: 'none', fontSize: 12, fontWeight: 600,
-          textAlign: 'center', transition: 'all 0.2s',
+          display: 'block', marginTop: 14, padding: '10px', borderRadius: 10,
+          background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)',
+          color: '#A78BFA', textDecoration: 'none', fontSize: 13, fontWeight: 600,
+          textAlign: 'center', transition: '0.2s',
         }}>Open Chat →</Link>
       </div>
     </div>
@@ -87,16 +80,17 @@ export default function Feed() {
   const fetchPosts = useCallback(async (reset = false) => {
     try {
       const p = reset ? 1 : page;
-      const { data } = await api.get(`/posts?page=${p}&limit=10`);
+      const url = tab === 'Following' ? `/posts/following?page=${p}&limit=10` : `/posts?page=${p}&limit=10`;
+      const { data } = await api.get(url);
       setPosts(prev => reset ? data.posts : [...prev, ...data.posts]);
-      setHasMore(p < data.pagination?.pages);
+      setHasMore(data.pagination ? p < data.pagination.pages : false);
       if (!reset) setPage(prev => prev + 1);
     } catch {
       toast.error('Failed to load posts');
     } finally {
       setLoading(false);
     }
-  }, [page]);
+  }, [page, tab]);
 
   useEffect(() => {
     setLoading(true);
@@ -104,75 +98,58 @@ export default function Feed() {
     fetchPosts(true);
   }, [tab]); // eslint-disable-line
 
-  const handleDelete = async id => {
-    if (!window.confirm('Delete this post?')) return;
-    try {
-      await api.delete(`/posts/${id}`);
-      setPosts(p => p.filter(x => x._id !== id));
-      toast.success('Post deleted');
-    } catch {
-      toast.error('Failed to delete');
-    }
+  const handleDelete = id => {
+    setPosts(p => p.filter(x => x._id !== id));
   };
 
   return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text-1)' }}>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 70% 40% at 50% -10%, rgba(139,92,246,0.07) 0%, transparent 60%)' }} />
+    <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text-1)', paddingTop: 80 }}>
+      <div className="page-bg" />
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px 80px', position: 'relative', zIndex: 10 }}>
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-          marginBottom: 32, flexWrap: 'wrap', gap: 14 }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40 }}>
           <div>
-            <h1 style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(26px, 4vw, 36px)',
-              fontWeight: 400, letterSpacing: '-0.02em', color: '#E5E7EB', lineHeight: 1 }}>Feed</h1>
-            <p style={{ fontSize: 13, color: '#6B7280', marginTop: 6 }}>What's happening in your network</p>
+            <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 400, color: '#E5E7EB' }}>Feed</h1>
+            <p style={{ fontSize: 14, color: 'var(--text-3)', marginTop: 4 }}>Stay updated with the community.</p>
           </div>
-          <Link to="/create" className="btn btn-primary" style={{ padding: '9px 20px', fontSize: 13 }}>
-            + Write a post
+          <Link to="/create" className="btn btn-primary">
+            Write a post
           </Link>
         </div>
 
-        <div className="feed-grid" style={{ alignItems: 'flex-start' }}>
-          {/* Main column */}
+        <div className="feed-grid">
           <div>
-            {/* Tabs */}
-            <div style={{ display: 'flex', gap: 2, marginBottom: 20, padding: 4, borderRadius: 12,
-              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', width: 'fit-content' }}>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 24, padding: 4, borderRadius: 14, background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', width: 'fit-content' }}>
               {TABS.map(t => (
                 <button key={t} onClick={() => setTab(t)} style={{
-                  padding: '7px 20px', borderRadius: 8, fontSize: 13, fontWeight: 500,
-                  cursor: 'pointer', border: 'none', transition: 'all 0.2s',
-                  background: tab === t ? 'rgba(139,92,246,0.15)' : 'transparent',
-                  color: tab === t ? '#A78BFA' : '#6B7280',
-                  boxShadow: tab === t ? '0 0 0 1px rgba(139,92,246,0.3)' : 'none',
+                  padding: '8px 24px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer', border: 'none', transition: '0.2s',
+                  background: tab === t ? 'rgba(255,255,255,0.05)' : 'transparent',
+                  color: tab === t ? '#fff' : 'var(--text-3)',
                 }}>{t}</button>
               ))}
             </div>
 
-            {loading ? (
-              <FeedSkeleton count={4} />
+            {loading && page === 1 ? (
+              <FeedSkeleton count={3} />
             ) : posts.length === 0 ? (
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                style={{ padding: '56px 32px', borderRadius: 20, textAlign: 'center',
-                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ fontSize: 40, marginBottom: 16 }}>📭</div>
-                <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: '#E5E7EB' }}>Nothing here yet</h3>
-                <p style={{ color: '#6B7280', marginBottom: 24, fontSize: 14 }}>Be the first to post something.</p>
-                <Link to="/create" className="btn btn-primary">Write a post</Link>
-              </motion.div>
+              <div style={{ padding: '80px 24px', borderRadius: 24, textAlign: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)' }}>
+                <p style={{ fontSize: 40, marginBottom: 16 }}>📭</p>
+                <h3 style={{ fontSize: 20, fontWeight: 500, marginBottom: 8 }}>Nothing to show</h3>
+                <p style={{ color: 'var(--text-3)', marginBottom: 24 }}>Follow people or post something to get started.</p>
+                <Link to="/explore" className="btn btn-secondary">Explore trending</Link>
+              </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <AnimatePresence>
                   {posts.map((p) => (
-                    <PostCard key={p._id} post={p} onUpdate={() => fetchPosts(true)} onDelete={handleDelete} />
+                    <PostCard key={p._id} post={p} onUpdate={() => {}} onDelete={handleDelete} />
                   ))}
                 </AnimatePresence>
 
                 {hasMore && (
-                  <div style={{ textAlign: 'center', paddingTop: 8 }}>
-                    <button onClick={() => fetchPosts()} className="btn btn-secondary" style={{ padding: '10px 32px' }}>
+                  <div style={{ textAlign: 'center', paddingTop: 20 }}>
+                    <button onClick={() => fetchPosts()} className="btn btn-secondary">
                       Load more
                     </button>
                   </div>
@@ -181,9 +158,10 @@ export default function Feed() {
             )}
           </div>
 
-          {/* Sidebar */}
-          <div className="feed-sidebar" style={{ position: 'sticky', top: 80, height: 'fit-content' }}>
-            <Sidebar />
+          <div className="feed-sidebar">
+            <div style={{ position: 'sticky', top: 100 }}>
+              <Sidebar />
+            </div>
           </div>
         </div>
       </div>
