@@ -32,9 +32,17 @@ const useAuthStore = create((set, get) => ({
   },
 
   // ── Register ─────────────────────────────────────────────────────────────
-  register: async (username, email, password) => {
+  register: async (username, email, password, bio, dateOfBirth, location, avatar) => {
     set({ error: null });
-    const { data } = await api.post('/auth/register', { username, email, password });
+    const { data } = await api.post('/auth/register', {
+      username,
+      email,
+      password,
+      bio,
+      dateOfBirth,
+      location,
+      avatar
+    });
     localStorage.setItem('nexus_token', data.token);
     set({ user: data.user, token: data.token });
     return data;

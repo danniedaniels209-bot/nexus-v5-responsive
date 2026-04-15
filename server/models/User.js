@@ -33,6 +33,13 @@ const UserSchema = new mongoose.Schema(
       maxlength: 200,
       default: '',
     },
+    dateOfBirth: {
+      type: Date,
+    },
+    location: {
+      type: String,
+      default: '',
+    },
     isVerified: {
       type: Boolean,
       default: false,

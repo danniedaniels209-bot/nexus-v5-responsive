@@ -38,6 +38,8 @@ const sendTokenResponse = (user, statusCode, res) => {
         avatar: user.avatar,
         bio: user.bio,
         isVerified: user.isVerified,
+        dateOfBirth: user.dateOfBirth,
+        location: user.location,
       },
     });
 };
@@ -55,7 +57,7 @@ router.post(
     if (!errors.isEmpty())
       return res.status(400).json({ success: false, errors: errors.array() });
 
-    const { username, email, password } = req.body;
+    const { username, email, password, avatar, bio, dateOfBirth, location } = req.body;
 
     try {
       const exists = await User.findOne({ $or: [{ email }, { username }] });
@@ -64,7 +66,15 @@ router.post(
           .status(409)
           .json({ success: false, message: 'Email or username already taken' });
 
-      const user = await User.create({ username, email, password });
+      const user = await User.create({
+        username,
+        email,
+        password,
+        avatar,
+        bio,
+        dateOfBirth,
+        location
+      });
       sendTokenResponse(user, 201, res);
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
