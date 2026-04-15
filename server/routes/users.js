@@ -6,12 +6,9 @@ const Message = require('../models/Message');
 const { protect } = require('../middleware/auth');
 
 // @route GET /api/users/conversations
-// Returns a list of users the current user has chatted with, along with the last message.
 router.get('/conversations', protect, async (req, res) => {
   try {
     const userId = req.user._id;
-
-    // Find all unique rooms/users the user has exchanged messages with
     const messages = await Message.find({
       $or: [{ sender: userId }, { receiver: userId }],
     })
@@ -23,7 +20,7 @@ router.get('/conversations', protect, async (req, res) => {
 
     messages.forEach((msg) => {
       const otherUser = msg.sender._id.toString() === userId.toString() ? msg.receiver : msg.sender;
-      if (!otherUser) return; // Skip global messages without receiver
+      if (!otherUser) return;
 
       const otherId = otherUser._id.toString();
       if (!conversationsMap.has(otherId)) {
@@ -57,6 +54,7 @@ router.get('/id/:id', async (req, res) => {
 router.get('/search', async (req, res) => {
   try {
     const { q } = req.query;
+    if (!q) return res.json({ success: true, users: [] });
     const users = await User.find({
       $or: [
         { username: { $regex: q, $options: 'i' } },
@@ -80,6 +78,7 @@ router.get('/:username', async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
     const posts = await Post.find({ author: user._id })
+      .populate('author', 'username avatar isVerified')
       .sort({ createdAt: -1 })
       .limit(20);
 
@@ -99,6 +98,17 @@ router.put('/profile', protect, async (req, res) => {
       { new: true, runValidators: true }
     ).select('-password');
     res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// @route DELETE /api/users/me
+router.delete('/me', protect, async (req, res) => {
+  try {
+    await Post.deleteMany({ author: req.user._id });
+    await User.findByIdAndDelete(req.user._id);
+    res.json({ success: true, message: 'Account deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

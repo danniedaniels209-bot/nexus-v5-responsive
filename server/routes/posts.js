@@ -151,24 +151,34 @@ router.get('/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ success: false, message: err.message }); }
 });
 
-// Standard CRUD follows... (trimmed for brevity but keeping logic)
 router.post('/', protect, upload.single('media'), async (req, res) => {
   try {
-    const { title, content, tags } = req.body;
-    let mediaUrl = '';
-    let mediaType = 'none';
+    const { title, content, tags, mediaUrl: bodyUrl, mediaType: bodyType } = req.body;
+    let mediaUrl = bodyUrl || '';
+    let mediaType = bodyType || 'none';
+
     if (req.file) {
       mediaUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
       mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
       if (mediaType === 'image') await optimizeImage(path.join(uploadsDir, req.file.filename));
     }
+
     const post = await Post.create({
-      author: req.user._id, title, content, mediaUrl, mediaType,
-      tags: tags ? tags.split(',').map(t => t.trim().toLowerCase()) : [],
+      author: req.user._id,
+      title,
+      content,
+      mediaUrl,
+      mediaType,
+      tags: (typeof tags === 'string' && tags.trim())
+        ? tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
+        : []
     });
+
     await post.populate('author', 'username avatar isVerified');
     res.status(201).json({ success: true, post });
-  } catch (err) { res.status(500).json({ success: false, message: err.message }); }
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
 });
 
 router.put('/:id/like', protect, async (req, res) => {

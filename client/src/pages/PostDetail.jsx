@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 import useAuthStore from '../context/authStore';
+import Avatar from '../components/ui/Avatar';
+import { PageSpinner } from '../components/ui/Spinner';
 
 export default function PostDetail() {
   const { id } = useParams();
@@ -21,20 +23,28 @@ export default function PostDetail() {
         const { data } = await api.get(`/posts/${id}`);
         setPost(data.post);
         setLikes(data.post.likes?.length || 0);
-        setLiked(user ? data.post.likes?.includes(user.id) : false);
+        setLiked(user ? data.post.likes?.includes(user.id || user._id) : false);
       } catch { toast.error('Post not found'); }
       setLoading(false);
     };
     fetchPost();
-  }, [id]);
+  }, [id, user]);
 
   const handleLike = async () => {
     if (!user) return;
+    const prevLiked = liked;
+    const prevLikes = likes;
+    setLiked(!liked);
+    setLikes(l => liked ? l - 1 : l + 1);
     try {
       const { data } = await api.put(`/posts/${id}/like`);
       setLikes(data.likes);
       setLiked(data.liked);
-    } catch {}
+    } catch {
+      setLiked(prevLiked);
+      setLikes(prevLikes);
+      toast.error('Failed to like post');
+    }
   };
 
   const handleComment = async (e) => {
@@ -50,156 +60,119 @@ export default function PostDetail() {
     setCommenting(false);
   };
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">
-      <div className="w-10 h-10 rounded-full border-2 border-teal/30 border-t-teal animate-spin" />
-    </div>;
-  }
+  if (loading) return <PageSpinner />;
 
   if (!post) {
-    return <div className="min-h-screen pt-24 flex items-center justify-center">
-      <div className="glass rounded-2xl p-12 text-center">
-        <p className="text-white/40 font-body">Post not found</p>
-        <Link to="/feed" className="text-teal font-body text-sm mt-3 inline-block">← Back to Feed</Link>
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ padding: 48, borderRadius: 20, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+          <p style={{ fontSize: 32, marginBottom: 12 }}>📭</p>
+          <p style={{ color: '#6B7280', marginBottom: 20 }}>Post not found</p>
+          <Link to="/feed" className="btn btn-secondary">← Back to Feed</Link>
+        </div>
       </div>
-    </div>;
+    );
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4 relative">
-      <div className="aurora" />
-      <div className="max-w-2xl mx-auto relative z-10">
-        <Link to="/feed" className="text-white/40 hover:text-white text-sm font-body flex items-center gap-1.5 mb-6 transition-colors">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/>
-          </svg>
+    <div style={{ background: 'var(--bg)', minHeight: '100vh', color: '#E5E7EB', fontFamily: '"DM Sans", sans-serif' }}>
+      <div className="page-bg"/>
+      <div style={{ maxWidth: 800, margin: '0 auto', padding: '80px 24px', position: 'relative', zIndex: 10 }}>
+
+        <Link to="/feed" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#6B7280', textDecoration: 'none', fontSize: 14, marginBottom: 24, transition: 'color 0.2s' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#E5E7EB'}
+          onMouseLeave={e => e.currentTarget.style.color = '#6B7280'}>
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
           Back to Feed
         </Link>
 
-        <motion.article
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-3xl p-8 mb-6"
-        >
-          {/* Author */}
-          <div className="flex items-center gap-3 mb-6">
-            <Link to={`/profile/${post.author?.username}`} className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-full overflow-hidden border border-gold/20">
-                {post.author?.avatar
-                  ? <img src={post.author.avatar} alt="" className="w-full h-full object-cover" />
-                  : <div className="w-full h-full flex items-center justify-center text-gold font-display font-bold"
-                      style={{ background: 'linear-gradient(135deg, #0f0f2a, #1a1a3a)' }}>
-                      {post.author?.username?.[0]?.toUpperCase()}
-                    </div>
-                }
-              </div>
-              <div>
-                <div className="text-white group-hover:text-gold transition-colors font-body font-medium text-sm">{post.author?.username}</div>
-                <div className="text-white/25 text-xs font-mono">{new Date(post.createdAt).toLocaleDateString()}</div>
-              </div>
+        <motion.article initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 'clamp(20px, 5vw, 40px)', marginBottom: 24 }}>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+            <Link to={`/profile/${post.author?.username}`}>
+              <Avatar user={post.author} size={44} />
             </Link>
+            <div>
+              <Link to={`/profile/${post.author?.username}`} style={{ textDecoration: 'none', color: '#E5E7EB', fontWeight: 600, fontSize: 15, display: 'block' }}>
+                {post.author?.username}
+              </Link>
+              <span style={{ fontSize: 12, color: '#6B7280' }}>{new Date(post.createdAt).toLocaleDateString()}</span>
+            </div>
           </div>
 
-          {/* Media */}
-          {post.mediaUrl && post.mediaType === 'image' && (
-            <div className="rounded-2xl overflow-hidden mb-6">
-              <img src={post.mediaUrl} alt="" className="w-full object-cover max-h-96" />
-            </div>
-          )}
-          {post.mediaUrl && post.mediaType === 'video' && (
-            <div className="rounded-2xl overflow-hidden mb-6">
-              <video src={post.mediaUrl} controls className="w-full" />
+          {post.mediaUrl && (
+            <div style={{ borderRadius: 16, overflow: 'hidden', marginBottom: 24, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              {post.mediaType === 'image' ? (
+                <img src={post.mediaUrl} style={{ width: '100%', maxHeight: 600, objectFit: 'contain', display: 'block' }} alt=""/>
+              ) : post.mediaType === 'video' ? (
+                <video src={post.mediaUrl} controls style={{ width: '100%', display: 'block' }} />
+              ) : post.mediaType === 'link' ? (
+                <a href={post.mediaUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: 20, color: 'var(--purple)', textDecoration: 'none', fontSize: 14 }}>
+                  🔗 {post.mediaUrl}
+                </a>
+              ) : null}
             </div>
           )}
 
-          {/* Content */}
-          {post.title && (
-            <h1 className="font-display text-3xl text-white mb-4 leading-tight">{post.title}</h1>
-          )}
-          <p className="text-white/70 font-body leading-relaxed whitespace-pre-wrap">{post.content}</p>
+          {post.title && <h1 style={{ fontFamily: '"Instrument Serif", serif', fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 400, color: '#E5E7EB', marginBottom: 16, lineHeight: 1.2 }}>{post.title}</h1>}
+          <p style={{ fontSize: 16, color: '#9CA3AF', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{post.content}</p>
 
-          {/* Tags */}
           {post.tags?.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-5">
-              {post.tags.map((tag) => (
-                <Link key={tag} to={`/explore?tag=${tag}`}
-                  className="px-3 py-1 rounded-full text-xs font-body text-teal/70 border border-teal/20 hover:text-teal hover:border-teal/40 transition-all">
-                  #{tag}
-                </Link>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 24 }}>
+              {post.tags.map(t => (
+                <Link key={t} to={`/explore?tag=${t}`} className="badge badge-accent" style={{ textDecoration: 'none' }}>#{t}</Link>
               ))}
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex items-center gap-5 mt-6 pt-6 border-t border-white/[0.06]">
-            <button onClick={handleLike} disabled={!user}
-              className={`flex items-center gap-2 transition-all ${liked ? 'text-rose' : 'text-white/40 hover:text-rose'} disabled:opacity-30`}>
-              <motion.svg whileTap={{ scale: 1.3 }} className="w-5 h-5" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-              </motion.svg>
-              <span className="font-mono text-sm">{likes}</span>
+          <div style={{ display: 'flex', gap: 20, marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <button onClick={handleLike} style={{
+              display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer',
+              color: liked ? '#EF4444' : '#6B7280', transition: 'all 0.2s', fontSize: 14, fontWeight: 500
+            }}>
+              <svg width="20" height="20" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+              {likes}
             </button>
-            <span className="flex items-center gap-2 text-white/30 text-sm">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-              </svg>
-              <span className="font-mono">{post.views}</span>
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6B7280', fontSize: 14 }}>
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              {post.views || 0}
+            </div>
           </div>
         </motion.article>
 
-        {/* Comments */}
-        <div className="glass rounded-3xl p-8">
-          <h2 className="font-display text-xl text-white mb-6">
-            Comments <span className="text-white/30 text-base">({post.comments?.length || 0})</span>
-          </h2>
+        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 'clamp(20px, 5vw, 40px)' }}>
+          <h2 style={{ fontFamily: '"Instrument Serif", serif', fontSize: 22, color: '#E5E7EB', marginBottom: 24 }}>Comments ({post.comments?.length || 0})</h2>
 
           {user && (
-            <form onSubmit={handleComment} className="mb-6">
-              <textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Share your thoughts..."
-                rows={3}
-                className="input-nexus resize-none mb-3"
-                maxLength={500}
-              />
-              <button type="submit" disabled={!comment.trim() || commenting}
-                className="btn-teal py-2.5 px-6 text-sm disabled:opacity-40">
+            <form onSubmit={handleComment} style={{ marginBottom: 32 }}>
+              <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Write a comment..."
+                style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 16, color: '#E5E7EB', fontSize: 14, minHeight: 100, outline: 'none', resize: 'vertical', marginBottom: 12 }}/>
+              <button type="submit" disabled={!comment.trim() || commenting} className="btn btn-primary" style={{ padding: '10px 24px', fontSize: 13, opacity: (!comment.trim() || commenting) ? 0.5 : 1 }}>
                 {commenting ? 'Posting...' : 'Post Comment'}
               </button>
             </form>
           )}
 
-          <div className="space-y-4">
-            {post.comments?.length === 0 && (
-              <p className="text-white/30 font-body text-sm text-center py-4">No comments yet. Be the first!</p>
-            )}
-            {post.comments?.map((c) => (
-              <div key={c._id} className="flex gap-3">
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0">
-                  {c.user?.avatar
-                    ? <img src={c.user.avatar} alt="" className="w-full h-full object-cover" />
-                    : <div className="w-full h-full flex items-center justify-center text-gold text-xs font-display font-bold"
-                        style={{ background: 'linear-gradient(135deg, #0f0f2a, #1a1a3a)' }}>
-                        {c.user?.username?.[0]?.toUpperCase()}
-                      </div>
-                  }
-                </div>
-                <div className="flex-1 bg-white/[0.03] rounded-xl px-4 py-3 border border-white/[0.05]">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Link to={`/profile/${c.user?.username}`} className="text-gold-light text-sm font-body hover:text-gold transition-colors">
-                      @{c.user?.username}
-                    </Link>
-                    <span className="text-white/20 text-xs font-mono">
-                      {new Date(c.createdAt).toLocaleDateString()}
-                    </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {post.comments?.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#6B7280', fontSize: 14, padding: '20px 0' }}>No comments yet.</p>
+            ) : (
+              post.comments.map(c => (
+                <div key={c._id} style={{ display: 'flex', gap: 12 }}>
+                  <Avatar user={c.user} size={32} />
+                  <div style={{ flex: 1, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16, padding: '12px 16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Link to={`/profile/${c.user?.username}`} style={{ textDecoration: 'none', color: '#A78BFA', fontWeight: 600, fontSize: 13 }}>
+                        @{c.user?.username}
+                      </Link>
+                      <span style={{ fontSize: 11, color: '#6B7280' }}>{new Date(c.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <p style={{ fontSize: 14, color: '#9CA3AF', lineHeight: 1.6 }}>{c.text}</p>
                   </div>
-                  <p className="text-white/60 text-sm font-body">{c.text}</p>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>
