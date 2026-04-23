@@ -34,8 +34,10 @@ export function SocketProvider({ children }) {
 
     const s = socketRef.current;
 
-    s.on('connect', () => console.log('✅ Connected to chat server'));
-    s.on('connect_error', (err) => console.error('❌ Connection error:', err.message));
+    if (import.meta.env.DEV) {
+      s.on('connect', () => console.log('Socket connected'));
+      s.on('connect_error', (err) => console.error('Socket error:', err.message));
+    }
 
     s.on('online_users', setOnlineUsers);
 
@@ -52,9 +54,9 @@ export function SocketProvider({ children }) {
         const exists = prev.find(c => c.room === room);
 
         if (exists) {
-          return prev.map(c => c.room === room ? { ...c, lastMsg: msg, unread: msg.sender._id !== user?.id } : c);
+          return prev.map(c => c.room === room ? { ...c, lastMsg: msg, unread: msg.sender?._id !== user?.id } : c);
         } else {
-          return [{ user: otherUser, room, lastMsg: msg, unread: msg.sender._id !== user?.id }, ...prev];
+          return [{ user: otherUser, room, lastMsg: msg, unread: msg.sender?._id !== user?.id }, ...prev];
         }
       });
 

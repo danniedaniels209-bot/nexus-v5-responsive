@@ -76,13 +76,15 @@ export function SidebarUserSkeleton({ count = 4 }) {
   );
 }
 
+const WIDTHS = ['55%', '72%', '48%', '65%', '58%'];
+
 export function ChatMessageSkeleton() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {[true, false, true, false, true].map((right, i) => (
         <div key={i} style={{ display: 'flex', justifyContent: right ? 'flex-end' : 'flex-start', gap: 8 }}>
           {!right && <SkeletonBox w={28} h={28} r={14} style={{ flexShrink: 0 }} />}
-          <SkeletonBox w={`${Math.floor(Math.random() * 30 + 40)}%`} h={36} r={12} />
+          <SkeletonBox w={WIDTHS[i % WIDTHS.length]} h={36} r={12} />
         </div>
       ))}
     </div>
