@@ -53,7 +53,7 @@ export default function App() {
     <BrowserRouter>
       <SocketProvider>
         <ErrorBoundary>
-          <div className="relative min-h-screen bg-void">
+          <div className="app-shell relative min-h-screen bg-void">
             <Navbar />
 
             <Suspense fallback={<PageSpinner />}>

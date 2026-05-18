@@ -216,7 +216,7 @@ export default function CreatePost() {
 
       <style>{`
         @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
           .create-grid { grid-template-columns: 1fr !important; }
           .create-side { border-left: none !important; border-top: 1px solid var(--border); }
           .create-submit-mob { display: block !important; }

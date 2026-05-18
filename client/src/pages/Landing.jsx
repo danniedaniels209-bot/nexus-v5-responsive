@@ -73,7 +73,7 @@ const HeroMockup = memo(() => (
 
 export default function Landing() {
   return (
-    <div style={{ background: '#0B0B0F', minHeight: '100vh', color: '#E5E7EB', overflowX: 'hidden' }}>
+    <div style={{ background: '#0B0B0F', minHeight: '100vh', color: '#E5E7EB', width: '100%', maxWidth: '100vw', position: 'relative', overflow: 'hidden' }}>
       <GlowOrb color="rgba(139,92,246,0.6)" size={600} x="-10%" y="-5%" opacity={0.1} />
       <GlowOrb color="rgba(34,211,238,0.6)"  size={500} x="70%" y="20%" opacity={0.07} />
 

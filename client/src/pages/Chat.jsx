@@ -120,7 +120,7 @@ function NewConvoModal({ onClose, onStart }) {
 export default function Chat() {
   const { user }   = useAuthStore();
   const { dmMessages, typingUsers, onlineUsers, conversations, openDM, sendDM, emitTyping, emitStopTyping } = useSocket();
-  const isMobile = useIsMobile(768);
+  const isMobile = useIsMobile(900);
   const [searchParams] = useSearchParams();
 
   const [activeConvo,  setActiveConvo]  = useState(null);
