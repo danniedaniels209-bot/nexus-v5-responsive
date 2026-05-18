@@ -35,7 +35,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav style={{
+      <nav className="site-navbar" style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         height: 60,
         background: scrolled ? 'rgba(0,0,0,0.9)' : 'rgba(0,0,0,0.6)',
@@ -45,11 +45,11 @@ export default function Navbar() {
         padding: '0 20px',
       }}>
 
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginRight: 32 }}>
+        <Link to="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginRight: 32 }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--purple)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ color: '#fff', fontWeight: 800, fontSize: 16 }}>N</span>
           </div>
-          <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: '#fff' }}>Nexus</span>
+          <span className="nav-brand-text" style={{ fontFamily: 'var(--font-serif)', fontSize: 20, color: '#fff' }}>Nexus</span>
         </Link>
 
         {user && (
@@ -72,7 +72,7 @@ export default function Navbar() {
           </div>
         )}
 
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="nav-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
           {user ? (
              <div style={{ position: 'relative' }}>
                 <button onClick={() => setUserMenuOpen(!userMenuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -93,7 +93,7 @@ export default function Navbar() {
                 </AnimatePresence>
              </div>
           ) : (
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div className="nav-auth-actions" style={{ display: 'flex', gap: 8 }}>
               <Link to="/login" className="btn btn-secondary btn-sm">Login</Link>
               <Link to="/register" className="btn btn-primary btn-sm">Join</Link>
             </div>
@@ -113,18 +113,27 @@ export default function Navbar() {
             <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: 'min(280px, 100vw)', background: '#0B0B0F', zIndex: 120, padding: '40px 24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
                <button onClick={() => setMobOpen(false)} style={{ alignSelf: 'flex-end', background: 'none', border: 'none', color: '#fff', fontSize: 32, cursor: 'pointer' }}>&times;</button>
                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                 {user && NAV_LINKS.map(l => (
-                   <Link key={l.to} to={l.to} style={{ color: '#fff', fontSize: 18, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0' }}>{l.icon}{l.label}</Link>
-                 ))}
-                 <Link to="/settings" style={{ color: '#fff', fontSize: 18, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0' }}>
-                   <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" strokeWidth="2"/><circle cx="12" cy="12" r="3" strokeWidth="2"/></svg>
-                   Settings
-                 </Link>
-                 <div style={{ height: 1, background: 'var(--border)', margin: '8px 0' }}/>
-                 <button onClick={handleLogout} style={{ color: 'var(--red)', fontSize: 18, background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-                   <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" strokeWidth="2"/></svg>
-                   Logout
-                 </button>
+                 {user ? (
+                   <>
+                     {NAV_LINKS.map(l => (
+                       <Link key={l.to} to={l.to} style={{ color: '#fff', fontSize: 18, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0' }}>{l.icon}{l.label}</Link>
+                     ))}
+                     <Link to="/settings" style={{ color: '#fff', fontSize: 18, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0' }}>
+                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" strokeWidth="2"/><circle cx="12" cy="12" r="3" strokeWidth="2"/></svg>
+                       Settings
+                     </Link>
+                     <div style={{ height: 1, background: 'var(--border)', margin: '8px 0' }}/>
+                     <button onClick={handleLogout} style={{ color: 'var(--red)', fontSize: 18, background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                       <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" strokeWidth="2"/></svg>
+                       Logout
+                     </button>
+                   </>
+                 ) : (
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                     <Link to="/login" className="btn btn-secondary">Login</Link>
+                     <Link to="/register" className="btn btn-primary">Join Nexus</Link>
+                   </div>
+                 )}
                </div>
             </motion.div>
           </>

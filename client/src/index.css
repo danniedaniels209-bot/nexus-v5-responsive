@@ -222,6 +222,28 @@ img, video {
   .cta-box { padding: 60px 24px !important; }
 
   /* Navbar mobile specific */
+  .site-navbar {
+    padding: 0 clamp(12px, 4vw, 16px) !important;
+  }
+
+  .nav-brand {
+    min-width: 0;
+    margin-right: 12px !important;
+  }
+
+  .nav-brand-text {
+    font-size: 18px !important;
+  }
+
+  .nav-actions {
+    flex-shrink: 0;
+    gap: 8px !important;
+  }
+
+  .nav-auth-actions {
+    display: none !important;
+  }
+
   .nav-center { display: none !important; }
   .nav-mob-toggle { display: flex !important; }
 
@@ -232,7 +254,6 @@ img, video {
 
 /* Extra small devices */
 @media (max-width: 480px) {
-  .btn { width: 100%; }
   .hero-cta-row .btn { width: 100%; }
 }
 
