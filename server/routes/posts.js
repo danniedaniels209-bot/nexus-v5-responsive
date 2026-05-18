@@ -6,6 +6,7 @@ const { protect } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const mongoose = require('mongoose');
 
 // Multer storage
 const uploadsDir = path.join(__dirname, '..', 'uploads');
@@ -26,6 +27,13 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter, limits: { fileSize: 50 * 1024 * 1024 } });
 const sharp = require('sharp');
+
+router.param('id', (req, res, next, id) => {
+  if (!mongoose.isValidObjectId(id)) {
+    return res.status(400).json({ success: false, message: 'Invalid post id' });
+  }
+  next();
+});
 
 async function optimizeImage(filePath) {
   try {
@@ -184,6 +192,8 @@ router.post('/', protect, upload.single('media'), async (req, res) => {
 router.put('/:id/like', protect, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
+
     const liked = post.likes.includes(req.user._id);
     if (liked) post.likes = post.likes.filter(id => id.toString() !== req.user._id.toString());
     else post.likes.push(req.user._id);
@@ -194,7 +204,13 @@ router.put('/:id/like', protect, async (req, res) => {
 
 router.post('/:id/comment', protect, async (req, res) => {
   try {
+    if (!req.body.text?.trim()) {
+      return res.status(400).json({ success: false, message: 'Comment text is required' });
+    }
+
     const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
+
     post.comments.push({ user: req.user._id, text: req.body.text });
     await post.save();
     await post.populate('comments.user', 'username avatar isVerified');
@@ -205,10 +221,18 @@ router.post('/:id/comment', protect, async (req, res) => {
 router.delete('/:id', protect, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
     if (post.author.toString() !== req.user._id.toString()) return res.status(403).json({ success: false });
     await post.deleteOne();
     res.json({ success: true });
   } catch (err) { res.status(500).json({ success: false }); }
+});
+
+router.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError || err.message === 'Only image and video uploads are allowed') {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+  next(err);
 });
 
 module.exports = router;

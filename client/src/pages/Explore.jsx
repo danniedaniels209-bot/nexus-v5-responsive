@@ -47,7 +47,7 @@ export default function Explore() {
     <div style={{ background: 'var(--bg)', minHeight: '100vh', color: '#E5E7EB', paddingTop: 80, paddingBottom: 100 }}>
       <div className="page-bg" />
 
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 10 }}>
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 clamp(14px,4vw,24px)', position: 'relative', zIndex: 10 }}>
         {/* Header */}
         <div style={{ marginBottom: 40 }}>
           <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: 400, marginBottom: 12 }}>Explore</h1>
@@ -90,7 +90,7 @@ export default function Explore() {
             <p style={{ color: 'var(--text-3)', fontSize: 14 }}>Try searching for something else or explore a different tag.</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: 20 }}>
             <AnimatePresence>
               {posts.map(post => (
                 <PostCard key={post._id} post={post} />

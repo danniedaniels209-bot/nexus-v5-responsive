@@ -110,7 +110,7 @@ export default function Navbar() {
         {mobOpen && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMobOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 110 }} />
-            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: 280, background: '#0B0B0F', zIndex: 120, padding: '40px 24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} style={{ position: 'fixed', right: 0, top: 0, bottom: 0, width: 'min(280px, 100vw)', background: '#0B0B0F', zIndex: 120, padding: '40px 24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
                <button onClick={() => setMobOpen(false)} style={{ alignSelf: 'flex-end', background: 'none', border: 'none', color: '#fff', fontSize: 32, cursor: 'pointer' }}>&times;</button>
                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                  {user && NAV_LINKS.map(l => (

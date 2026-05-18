@@ -93,7 +93,7 @@ export default function PostDetail() {
   return (
     <div style={{ background: 'var(--bg)', minHeight: '100vh', color: '#E5E7EB', fontFamily: 'var(--font-main)' }}>
       <div className="page-bg"/>
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '80px 20px', position: 'relative', zIndex: 10 }}>
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '80px clamp(14px,4vw,20px)', position: 'relative', zIndex: 10 }}>
 
         <Link to="/feed" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'var(--text-3)', textDecoration: 'none', fontSize: 14, marginBottom: 24, transition: 'color 0.2s' }}
           onMouseEnter={e => e.currentTarget.style.color = '#fff'}
@@ -103,7 +103,7 @@ export default function PostDetail() {
         </Link>
 
         <motion.article initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24, padding: '32px', marginBottom: 24 }}>
+          style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24, padding: 'clamp(18px,5vw,32px)', marginBottom: 24 }}>
 
           {/* Author info with safety checks */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
@@ -163,7 +163,7 @@ export default function PostDetail() {
         </motion.article>
 
         {/* Comments Section */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24, padding: '32px' }}>
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24, padding: 'clamp(18px,5vw,32px)' }}>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, color: '#fff', marginBottom: 24 }}>Comments ({post.comments?.length || 0})</h2>
 
           {user && (
@@ -183,8 +183,8 @@ export default function PostDetail() {
               post.comments.map(c => (
                 <div key={c._id} style={{ display: 'flex', gap: 12 }}>
                   <Avatar user={c.user} size={32} />
-                  <div style={{ flex: 1, background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: 16, padding: '12px 16px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <div style={{ flex: 1, minWidth: 0, background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: 16, padding: '12px 16px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
                       <Link to={c.user ? `/profile/${c.user.username}` : '#'} style={{ textDecoration: 'none', color: 'var(--purple)', fontWeight: 600, fontSize: 13 }}>
                         @{c.user?.username || 'user'}
                       </Link>

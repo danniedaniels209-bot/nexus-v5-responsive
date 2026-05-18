@@ -55,7 +55,6 @@ export default function App() {
         <ErrorBoundary>
           <div className="relative min-h-screen bg-void">
             <Navbar />
-            <BottomNav />
 
             <Suspense fallback={<PageSpinner />}>
               <Routes>
@@ -77,6 +76,8 @@ export default function App() {
                 <Route path="*"        element={<NotFound />} />
               </Routes>
             </Suspense>
+
+            <BottomNav />
           </div>
         </ErrorBoundary>
 

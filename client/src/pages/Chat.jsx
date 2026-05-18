@@ -133,6 +133,10 @@ export default function Chat() {
   const timerRef  = useRef();
 
   useEffect(() => {
+    setSidebarOpen(!isMobile);
+  }, [isMobile]);
+
+  useEffect(() => {
     const uid = searchParams.get('user');
     if (uid && user) {
       api.get(`/users/id/${uid}`).then(({ data }) => startConvo(data.user)).catch(() => {});
@@ -165,15 +169,25 @@ export default function Chat() {
     timerRef.current = setTimeout(() => { setIsTyping(false); if (activeConvo) emitStopTyping(activeConvo.room); }, 1500);
   };
 
-  const typingKey = activeConvo ? Object.keys(typingUsers).filter(k => k.startsWith(activeConvo.room) && !k.includes(user?.id)) : [];
-  const isOnline  = id => onlineUsers.includes(id);
+  const myId = (user?.id || user?._id)?.toString();
+  const typingKey = activeConvo ? Object.keys(typingUsers).filter(k => k.startsWith(`${activeConvo.room}_`) && !k.endsWith(`_${myId}`)) : [];
+  const isOnline  = id => onlineUsers.map(String).includes(String(id));
   const filteredConvos = conversations.filter(c => !search || c.user?.username?.toLowerCase().includes(search.toLowerCase()));
 
   if (!user) return <div className="h-screen flex items-center justify-center">Please log in.</div>;
 
   return (
-    <div style={{ background: '#0B0B0F', height: '100vh', display: 'flex', flexDirection: 'column', color: '#E5E7EB', overflow: 'hidden' }}>
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', paddingTop: 64, position: 'relative' }}>
+    <div style={{ background: '#0B0B0F', height: '100dvh', minHeight: '100vh', maxWidth: '100%', display: 'flex', flexDirection: 'column', color: '#E5E7EB', overflow: 'hidden' }}>
+      <div style={{
+        flex: 1,
+        minHeight: 0,
+        minWidth: 0,
+        display: 'flex',
+        overflow: 'hidden',
+        paddingTop: 'var(--app-header-height)',
+        paddingBottom: isMobile ? 'var(--mobile-bottom-nav-height)' : 0,
+        position: 'relative'
+      }}>
 
         {/* Sidebar */}
         <div style={{
@@ -220,28 +234,29 @@ export default function Chat() {
         </div>
 
         {/* Message Area */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#0B0B0F' }}>
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', background: '#0B0B0F' }}>
           {activeConvo ? (
             <>
-              <div style={{ padding: '0 20px', height: 64, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ padding: isMobile ? '0 12px' : '0 20px', height: 64, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 {isMobile && <button onClick={() => setSidebarOpen(true)} style={{ background: 'none', border: 'none', color: '#6B7280' }}><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>}
                 <Avatar user={activeConvo.user} size={38} online={isOnline(activeConvo.user._id)}/>
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <h3 style={{ fontSize: 15, fontWeight: 600 }}>@{activeConvo.user.username}</h3>
                   <p style={{ fontSize: 11, color: isOnline(activeConvo.user._id) ? '#10B981' : '#6B7280' }}>{isOnline(activeConvo.user._id) ? 'Online' : 'Offline'}</p>
                 </div>
               </div>
-              <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: isMobile ? '14px 12px' : '20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {currentMessages.map((msg, i) => {
                   const isMe = msg.sender?._id === user.id || msg.sender === user.id;
                   return (
                     <motion.div key={msg._id || i} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
-                      style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: '75%' }}>
+                      style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: isMobile ? '86%' : '75%', minWidth: 0 }}>
                       <div style={{
                         padding: '10px 14px', borderRadius: isMe ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                         fontSize: 14, background: isMe ? '#A78BFA' : 'rgba(255,255,255,0.05)',
                         color: isMe ? '#fff' : '#E5E7EB',
-                        border: isMe ? 'none' : '1px solid rgba(255,255,255,0.08)'
+                        border: isMe ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                        overflowWrap: 'anywhere'
                       }}>
                         {msg.text}
                       </div>
@@ -254,10 +269,10 @@ export default function Chat() {
                 {typingKey.length > 0 && <TypingDots/>}
                 <div ref={bottomRef}/>
               </div>
-              <form onSubmit={handleSend} style={{ padding: 20, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <form onSubmit={handleSend} style={{ padding: isMobile ? 12 : 20, borderTop: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
                 <div style={{ display: 'flex', gap: 10 }}>
                   <input value={input} onChange={handleInput} placeholder="Type a message…" className="input-nexus" style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 24, paddingLeft: 20 }}/>
-                  <button type="submit" disabled={!input.trim()} className="btn-icon" style={{ background: '#A78BFA', color: '#fff', borderRadius: '50%', width: 42, height: 42 }}>
+                  <button type="submit" disabled={!input.trim()} className="btn-icon" style={{ background: '#A78BFA', color: '#fff', borderRadius: '50%', width: 42, height: 42, flexShrink: 0 }}>
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </button>
                 </div>
@@ -278,7 +293,7 @@ export default function Chat() {
         </div>
       </div>
       <AnimatePresence>{newConvo && <NewConvoModal onClose={() => setNewConvo(false)} onStart={startConvo}/>}</AnimatePresence>
-      <style>{`.spinner-mini{width:20px;height:20px;border:2px solid rgba(255,255,255,0.1);border-top-color:#A78BFA;border-radius:50%;animation:spin 0.8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.btn-icon{width:36px;height:36px;display:flex;alignItems:center;justifyContent:center;border:none;cursor:pointer;border-radius:10px;transition:all 0.2s}`}</style>
+      <style>{`.spinner-mini{width:20px;height:20px;border:2px solid rgba(255,255,255,0.1);border-top-color:#A78BFA;border-radius:50%;animation:spin 0.8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.btn-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;border-radius:10px;transition:all 0.2s}`}</style>
     </div>
   );
 }

@@ -14,6 +14,10 @@ export function SocketProvider({ children }) {
   const [conversations, setConversations] = useState([]);
   const [unreadCount,  setUnreadCount]  = useState(0);
 
+  useEffect(() => {
+    setUnreadCount(conversations.filter(c => c.unread).length);
+  }, [conversations]);
+
   // Connect socket
   useEffect(() => {
     if (!token) return;
@@ -43,26 +47,29 @@ export function SocketProvider({ children }) {
 
     s.on('new_private_message', (msg) => {
       const room = msg.room;
+      const myId = (user?.id || user?._id)?.toString();
+
       setDmMessages(prev => ({
         ...prev,
-        [room]: [...(prev[room] || []), msg],
+        [room]: (prev[room] || []).some(m => m._id === msg._id)
+          ? (prev[room] || [])
+          : [...(prev[room] || []), msg],
       }));
 
       // Update the conversation list immediately
       setConversations(prev => {
-        const otherUser = msg.sender._id === user?.id ? msg.receiver : msg.sender;
+        const senderId = (msg.sender?._id || msg.sender)?.toString();
+        const otherUser = senderId === myId ? msg.receiver : msg.sender;
         const exists = prev.find(c => c.room === room);
+        const unread = senderId !== myId;
 
         if (exists) {
-          return prev.map(c => c.room === room ? { ...c, lastMsg: msg, unread: msg.sender?._id !== user?.id } : c);
+          if (exists.lastMsg?._id === msg._id) return prev;
+          return prev.map(c => c.room === room ? { ...c, lastMsg: msg, unread: unread || c.unread } : c);
         } else {
-          return [{ user: otherUser, room, lastMsg: msg, unread: msg.sender?._id !== user?.id }, ...prev];
+          return [{ user: otherUser, room, lastMsg: msg, unread }, ...prev];
         }
       });
-
-      if (msg.sender?._id !== user?.id) {
-        setUnreadCount(n => n + 1);
-      }
     });
 
     s.on('dm_history', ({ room, messages }) => {
@@ -78,7 +85,7 @@ export function SocketProvider({ children }) {
     );
 
     return () => s.disconnect();
-  }, [token, user?.id]);
+  }, [token, user?.id, user?._id]);
 
   // Load initial conversations from API
   const refreshConversations = useCallback(async () => {

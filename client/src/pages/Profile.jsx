@@ -112,7 +112,7 @@ export default function Profile() {
               </div>
 
               {/* Actions */}
-              <div style={{ display: 'flex', gap: 10 }}>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                 {isMe ? (
                   <Link to="/settings" className="btn btn-secondary btn-sm">Edit profile</Link>
                 ) : me ? (
@@ -146,7 +146,7 @@ export default function Profile() {
           {/* Stats row */}
           <div style={{ display: 'flex', borderTop: '1px solid var(--border)', padding: '16px clamp(16px,4vw,36px)' }}>
             {[[posts.length, 'posts'], [fc, 'followers'], [profile.following?.length || 0, 'following']].map(([v, l], i) => (
-              <div key={l} style={{ textAlign: 'center', padding: '0 24px', borderRight: i < 2 ? '1px solid var(--border)' : 'none' }}>
+              <div key={l} style={{ flex: '1 1 0', minWidth: 0, textAlign: 'center', padding: '0 clamp(8px,4vw,24px)', borderRight: i < 2 ? '1px solid var(--border)' : 'none' }}>
                 <div style={{ fontFamily: 'var(--font-serif)', fontSize: 24, color: 'var(--purple)' }}><AnimatedCount value={v}/></div>
                 <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-3)', letterSpacing: '0.05em' }}>{l}</div>
               </div>

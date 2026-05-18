@@ -76,7 +76,7 @@ export default function BottomNav() {
         position: 'fixed',
         bottom: 0, left: 0, right: 0,
         zIndex: 90,
-        height: 64,
+        height: 'var(--mobile-bottom-nav-height)',
         background: 'rgba(11,11,15,0.92)',
         backdropFilter: 'blur(24px) saturate(1.5)',
         WebkitBackdropFilter: 'blur(24px) saturate(1.5)',
@@ -84,7 +84,8 @@ export default function BottomNav() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
-        padding: '0 8px',
+        padding: '4px 8px calc(4px + var(--safe-area-bottom))',
+        boxSizing: 'border-box',
         // Only show on mobile
       }} className="bottom-nav">
         {NAV_ITEMS.map((item) => {

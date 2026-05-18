@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import Login from '../pages/Login';
 import useAuthStore from '../context/authStore';
@@ -40,7 +39,7 @@ describe('Login Page', () => {
   it('updates email field on input', async () => {
     renderLogin();
     const emailInput = screen.getByPlaceholderText('you@example.com');
-    await userEvent.type(emailInput, 'alice@test.com');
+    fireEvent.change(emailInput, { target: { value: 'alice@test.com' } });
     expect(emailInput).toHaveValue('alice@test.com');
   });
 
@@ -49,8 +48,8 @@ describe('Login Page', () => {
     useAuthStore.setState({ login: mockLogin });
 
     renderLogin();
-    await userEvent.type(screen.getByPlaceholderText('you@example.com'), 'alice@test.com');
-    await userEvent.type(screen.getByPlaceholderText('••••••••'), 'password123');
+    fireEvent.change(screen.getByPlaceholderText('you@example.com'), { target: { value: 'alice@test.com' } });
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'password123' } });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await waitFor(() => {
@@ -64,8 +63,8 @@ describe('Login Page', () => {
     useAuthStore.setState({ login: mockLogin });
 
     renderLogin();
-    await userEvent.type(screen.getByPlaceholderText('you@example.com'), 'bad@test.com');
-    await userEvent.type(screen.getByPlaceholderText('••••••••'), 'wrong');
+    fireEvent.change(screen.getByPlaceholderText('you@example.com'), { target: { value: 'bad@test.com' } });
+    fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'wrong' } });
     fireEvent.click(screen.getByRole('button', { name: /continue/i }));
 
     await waitFor(() => {

@@ -63,15 +63,19 @@ const initSocket = (io) => {
           room: `dm_${[userId, data.receiverId].sort().join('_')}`,
           text: data.text,
         });
-        await msg.populate('sender', 'username avatar');
+        await msg.populate([
+          { path: 'sender', select: 'username avatar' },
+          { path: 'receiver', select: 'username avatar' },
+        ]);
 
         const room = msg.room;
         // Emit to the room (both sender and receiver if they are joined)
         io.to(room).emit('new_private_message', msg);
 
-        // Also emit to receiver directly in case they aren't in the room yet
+        // Also emit to receiver directly in case they aren't in the room yet.
         const receiverSocketId = onlineUsers.get(data.receiverId);
-        if (receiverSocketId) {
+        const receiverInRoom = receiverSocketId && io.sockets.adapter.rooms.get(room)?.has(receiverSocketId);
+        if (receiverSocketId && !receiverInRoom) {
           io.to(receiverSocketId).emit('new_private_message', msg);
         }
       } catch (err) {

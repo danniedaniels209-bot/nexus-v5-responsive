@@ -100,7 +100,7 @@ export default function Login() {
                 <input
                   type={f.type}
                   value={form[f.key]}
-                  onChange={e => setForm({ ...form, [f.key]: e.target.value })}
+                  onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
                   placeholder={f.ph}
                   required
                   className="input-nexus"

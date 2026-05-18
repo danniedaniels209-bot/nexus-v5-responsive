@@ -50,35 +50,35 @@ export default function Register() {
                 ].map(f => (
                   <div key={f.key}>
                     <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 8, letterSpacing: '0.07em', textTransform: 'uppercase' }}>{f.label}</label>
-                    <input type={f.type} value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })} placeholder={f.ph} required className="input-nexus" />
+                    <input type={f.type} value={form[f.key]} onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))} placeholder={f.ph} required className="input-nexus" />
                   </div>
                 ))}
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 8, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Password</label>
-                <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="At least 6 characters" required className="input-nexus" />
+                <input type="password" value={form.password} onChange={e => setForm(prev => ({ ...prev, password: e.target.value }))} placeholder="At least 6 characters" required className="input-nexus" />
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 8, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Avatar URL</label>
-                <input type="url" value={form.avatar} onChange={e => setForm({ ...form, avatar: e.target.value })} placeholder="https://example.com/photo.jpg" className="input-nexus" />
+                <input type="url" value={form.avatar} onChange={e => setForm(prev => ({ ...prev, avatar: e.target.value }))} placeholder="https://example.com/photo.jpg" className="input-nexus" />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 8, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Date of Birth</label>
-                  <input type="date" value={form.dateOfBirth} onChange={e => setForm({ ...form, dateOfBirth: e.target.value })} className="input-nexus" />
+                  <input type="date" value={form.dateOfBirth} onChange={e => setForm(prev => ({ ...prev, dateOfBirth: e.target.value }))} className="input-nexus" />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 8, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Location</label>
-                  <input type="text" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} placeholder="City, Country" className="input-nexus" />
+                  <input type="text" value={form.location} onChange={e => setForm(prev => ({ ...prev, location: e.target.value }))} placeholder="City, Country" className="input-nexus" />
                 </div>
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 8, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Bio</label>
-                <textarea value={form.bio} onChange={e => setForm({ ...form, bio: e.target.value })} placeholder="Tell us about yourself..." className="input-nexus" rows="3" style={{ resize: 'none' }} />
+                <textarea value={form.bio} onChange={e => setForm(prev => ({ ...prev, bio: e.target.value }))} placeholder="Tell us about yourself..." className="input-nexus" rows="3" style={{ resize: 'none' }} />
               </div>
             </div>
 

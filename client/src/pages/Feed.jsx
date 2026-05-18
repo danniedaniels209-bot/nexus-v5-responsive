@@ -106,8 +106,8 @@ export default function Feed() {
     <div style={{ background: 'var(--bg)', minHeight: '100vh', color: 'var(--text-1)', paddingTop: 80 }}>
       <div className="page-bg" />
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 80px', position: 'relative', zIndex: 10 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 40 }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 clamp(14px,4vw,24px) 80px', position: 'relative', zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 40 }}>
           <div>
             <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 400, color: '#E5E7EB' }}>Feed</h1>
             <p style={{ fontSize: 14, color: 'var(--text-3)', marginTop: 4 }}>Stay updated with the community.</p>

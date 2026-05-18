@@ -80,7 +80,7 @@ export default function CreatePost() {
               {/* Title */}
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "#6B7280", marginBottom: 10 }}>Title (optional)</label>
-                <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })}
+                <input value={form.title} onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Give your post a title…" className="input-nexus" maxLength={150}
                   style={{ fontSize: 18, fontWeight: 600, padding: "14px 16px" }}/>
               </div>
@@ -93,7 +93,7 @@ export default function CreatePost() {
                     {wordCount} words · {form.content.length}/5000
                   </span>
                 </div>
-                <textarea value={form.content} onChange={e => setForm({ ...form, content: e.target.value })}
+                <textarea value={form.content} onChange={e => setForm(prev => ({ ...prev, content: e.target.value }))}
                   placeholder="What's on your mind? Share your thoughts, ideas, discoveries…"
                   required rows={10} maxLength={5000} className="input-nexus"
                   style={{ resize: "vertical", lineHeight: 1.8, fontSize: 15 }}/>
@@ -102,7 +102,7 @@ export default function CreatePost() {
               {/* Tags */}
               <div>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase", color: "#6B7280", marginBottom: 10 }}>Tags</label>
-                <input value={form.tags} onChange={e => setForm({ ...form, tags: e.target.value })}
+                <input value={form.tags} onChange={e => setForm(prev => ({ ...prev, tags: e.target.value }))}
                   placeholder="technology, design, ai — comma separated" className="input-nexus"/>
                 {form.tags && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 10 }}>
@@ -132,7 +132,7 @@ export default function CreatePost() {
             {/* Media type selector */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 16 }}>
               {MEDIA_TYPES.map(m => (
-                <button key={m.value} type="button" onClick={() => setForm({ ...form, mediaType: m.value, mediaUrl: m.value === "none" ? "" : form.mediaUrl })}
+                <button key={m.value} type="button" onClick={() => setForm(prev => ({ ...prev, mediaType: m.value, mediaUrl: m.value === "none" ? "" : prev.mediaUrl }))}
                   style={{
                     padding: "10px 8px", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer",
                     border: `1px solid ${form.mediaType === m.value ? "var(--purple-ring)" : "var(--border)"}`,
@@ -150,7 +150,7 @@ export default function CreatePost() {
                 {form.mediaType === 'link' ? (
                   <>
                     <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6B7280", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.04em" }}>URL</label>
-                    <input value={form.mediaUrl} onChange={e => setForm({ ...form, mediaUrl: e.target.value })}
+                    <input value={form.mediaUrl} onChange={e => setForm(prev => ({ ...prev, mediaUrl: e.target.value }))}
                       placeholder={`Paste ${form.mediaType} URL…`} className="input-nexus" style={{ fontSize: 13 }}/>
                   </>
                 ) : (
@@ -168,7 +168,7 @@ export default function CreatePost() {
                     )}
                     <div style={{ marginTop: 8 }}>
                       <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6B7280", marginBottom: 6 }}>Or paste a URL</label>
-                      <input value={form.mediaUrl} onChange={e => setForm({ ...form, mediaUrl: e.target.value })}
+                      <input value={form.mediaUrl} onChange={e => setForm(prev => ({ ...prev, mediaUrl: e.target.value }))}
                         placeholder={`Paste ${form.mediaType} URL…`} className="input-nexus" style={{ fontSize: 13 }}/>
                     </div>
                   </>
