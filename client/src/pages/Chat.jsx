@@ -224,11 +224,12 @@ export default function Chat() {
                     display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '14px 20px', border: 'none',
                     background: active ? 'rgba(139,92,246,0.08)' : 'transparent', textAlign: 'left', cursor: 'pointer',
                     borderLeft: `3px solid ${active ? '#A78BFA' : 'transparent'}`,
+                    color: '#E5E7EB',
                   }}>
                   <Avatar user={convo.user} size={42} online={isOnline(convo.user?._id)}/>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 14, fontWeight: 600 }}>@{convo.user?.username}</span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: '#E5E7EB' }}>@{convo.user?.username}</span>
                       <span style={{ fontSize: 11, color: '#6B7280' }}>{timeAgo(convo.lastMsg?.createdAt)}</span>
                     </div>
                     <p style={{ fontSize: 13, color: convo.unread ? '#E5E7EB' : '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: convo.unread ? 600 : 400 }}>
@@ -250,7 +251,7 @@ export default function Chat() {
                 {isMobile && <button onClick={() => setSidebarOpen(true)} style={{ background: 'none', border: 'none', color: '#6B7280' }}><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>}
                 <Avatar user={activeConvo.user} size={38} online={isOnline(activeConvo.user._id)}/>
                 <div style={{ minWidth: 0 }}>
-                  <h3 style={{ fontSize: 15, fontWeight: 600 }}>@{activeConvo.user.username}</h3>
+                  <h3 style={{ fontSize: 15, fontWeight: 600, color: '#E5E7EB' }}>@{activeConvo.user.username}</h3>
                   <p style={{ fontSize: 11, color: isOnline(activeConvo.user._id) ? '#10B981' : '#6B7280' }}>{isOnline(activeConvo.user._id) ? 'Online' : 'Offline'}</p>
                 </div>
               </div>

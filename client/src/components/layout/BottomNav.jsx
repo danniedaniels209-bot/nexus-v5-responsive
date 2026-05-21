@@ -81,7 +81,6 @@ export default function BottomNav() {
         backdropFilter: 'blur(24px) saturate(1.5)',
         WebkitBackdropFilter: 'blur(24px) saturate(1.5)',
         borderTop: '1px solid rgba(255,255,255,0.08)',
-        display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
         padding: '4px 8px calc(4px + var(--safe-area-bottom))',
