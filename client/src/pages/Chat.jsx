@@ -133,8 +133,8 @@ export default function Chat() {
   const timerRef  = useRef();
 
   useEffect(() => {
-    setSidebarOpen(!isMobile);
-  }, [isMobile]);
+    setSidebarOpen(!isMobile || !activeConvo);
+  }, [isMobile, activeConvo]);
 
   useEffect(() => {
     const uid = searchParams.get('user');
@@ -177,7 +177,16 @@ export default function Chat() {
   if (!user) return <div className="h-screen flex items-center justify-center">Please log in.</div>;
 
   return (
-    <div style={{ background: '#0B0B0F', height: '100dvh', minHeight: '100vh', maxWidth: '100%', display: 'flex', flexDirection: 'column', color: '#E5E7EB', overflow: 'hidden' }}>
+    <div style={{
+      background: '#0B0B0F',
+      height: 'calc(100dvh - var(--active-bottom-nav-height))',
+      minHeight: 'calc(100vh - var(--active-bottom-nav-height))',
+      maxWidth: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      color: '#E5E7EB',
+      overflow: 'hidden'
+    }}>
       <div style={{
         flex: 1,
         minHeight: 0,
@@ -185,7 +194,6 @@ export default function Chat() {
         display: 'flex',
         overflow: 'hidden',
         paddingTop: 'var(--app-header-height)',
-        paddingBottom: isMobile ? 'var(--mobile-bottom-nav-height)' : 0,
         position: 'relative'
       }}>
 
@@ -193,7 +201,8 @@ export default function Chat() {
         <div style={{
           width: isMobile ? '100%' : 320, flexShrink: 0, borderRight: '1px solid rgba(255,255,255,0.08)',
           display: 'flex', flexDirection: 'column', height: '100%', background: '#0B0B0F',
-          position: isMobile ? 'absolute' : 'relative', zIndex: isMobile ? (sidebarOpen ? 50 : -1) : 'auto',
+          position: isMobile ? 'absolute' : 'relative', zIndex: isMobile ? (sidebarOpen ? 50 : 0) : 'auto',
+          pointerEvents: isMobile && !sidebarOpen ? 'none' : 'auto',
           transform: isMobile ? (sidebarOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none',
           transition: 'transform 0.3s ease',
         }}>

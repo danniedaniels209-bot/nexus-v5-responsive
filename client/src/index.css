@@ -33,6 +33,7 @@
   --bottom-nav-height: 64px;
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --mobile-bottom-nav-height: calc(var(--bottom-nav-height) + var(--safe-area-bottom));
+  --active-bottom-nav-height: 0px;
 }
 
 /* ═══════════════════════════════════════════════
@@ -351,6 +352,7 @@ a {
   .nav-mob-toggle { display: flex !important; }
 
   /* Bottom Nav */
+  :root { --active-bottom-nav-height: var(--mobile-bottom-nav-height); }
   .bottom-nav { display: flex !important; }
   .bottom-nav-spacer { height: var(--mobile-bottom-nav-height) !important; display: block !important; flex: 0 0 auto; }
 }
